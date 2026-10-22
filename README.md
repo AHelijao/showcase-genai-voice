@@ -1,35 +1,59 @@
 # GenAI Voice Assist — showcase
 
-**Portfolio:** [ahelijao.github.io](https://ahelijao.github.io/) · Chapter III
+**Portfolio:** [ahelijao.github.io](https://ahelijao.github.io/) · Chapter III  
+**Private source:** not linked
 
-> Sanitized public view. No client names, no domain scripts, no production configs.
+> Docs-only public view. No client names, no métier scripts, no account IDs / tfvars.
 
-## What it is
+## Elevator
 
-An evolution of a **path-based / scripted phone callbot** toward a **GenAI conversation layer** on AWS: more natural understanding, less rigid branching, still grounded in contact-center + NLU + serverless infrastructure.
+Evolve a **path-based (parcours) phone callbot** into a **GenAI conversation layer** on AWS — without throwing away the contact-center foundation.
 
-## Problem
+## Need
 
-Journey bots scale poorly when callers don’t follow the happy path. Adding a model is not enough — you need staging, IaC, and clear boundaries between dialogue intelligence and backend systems.
+| Pain | Response |
+|------|----------|
+| Rigid IVR / Lex journeys break on messy callers | Additive GenAI layer for freer dialogue |
+| “Just call Bedrock from prod” is reckless | Separate **POC / AI module** from base Connect+Lex parcours |
+| Ops needs repeatability | Terraform modules, env separation (dev/prod pattern) |
 
-## What this shows
+## Architecture (sanitized)
 
-- Callbot architecture shift: fixed parcours → GenAI-assisted dialogue
-- Cloud building blocks: contact center, NLU, Lambda, managed GenAI
-- Multi-environment delivery with Terraform
+```text
+Caller
+  │
+  ▼
+Contact center (Amazon Connect)
+  │
+  ▼
+NLU / bot (Lex) ── parcours intents (baseline)
+  │
+  │  optional code hook
+  ▼
+┌─────────────────────────────────────┐
+│  AI callbot layer (additive)        │
+│  · conversation memory (TTL)        │
+│  · Lambda “brain”                   │
+│  · managed GenAI invoke             │
+└─────────────────────────────────────┘
+```
+
+**Design rule:** the GenAI module **adds** resources; it does not silently rewrite the baseline parcours stack. That keeps rollback and comparison honest.
+
+## What this demonstrates
+
+- Real cloud telephony + NLU + serverless GenAI composition
+- IaC discipline for an AI feature, not a one-off console click
+- Clear boundary between **journey bot** and **generative dialogue**
 
 ## Stack
 
-`Amazon Connect` · `Lex` · `Lambda` · `Bedrock` · `Terraform` · (supporting AWS data stores as needed)
+`Amazon Connect` · `Lex` · `Lambda` · DynamoDB (short-lived memory) · `Bedrock` (or equivalent managed LLM path) · `Terraform` modules
 
-## What’s intentionally omitted
+## Explicitly not in this repo
 
-Business flows, prompts tied to a specific métier, tfvars, account IDs, and any production secrets.
-
-## Status
-
-Architecture showcase. Implementation details on request / under NDA.
+Domain prompts, client vocabulary, production tfvars, IAM account specifics, Lambda source.
 
 ---
 
-*Helijao Andriamandranto — software & cybersecurity*
+← back to [portfolio](https://ahelijao.github.io/) · Helijao Andriamandranto
